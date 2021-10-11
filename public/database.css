@@ -1,0 +1,30 @@
+th {
+    color: #fff;
+}
+
+.enginput {
+    display: flex;
+    border-radius: 30px;
+    border: none;
+    background-color: rgb(236, 173, 173);
+    outline: medium;
+}
+
+.chiinput {
+    display: flex;
+    border-radius: 30px;
+    border: none;
+    background-color: rgba(238, 238, 238, 1);
+    outline: medium;
+}
+
+.submit {
+    height: 30px;
+    width: 50px;
+    font-size: 115%;
+    display: flex;
+    border-radius: 10px;
+    border: none;
+    background-color: aqua;
+    outline: medium;
+}

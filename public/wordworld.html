@@ -1,0 +1,246 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="wordworld.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ"
+        crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WordWorld</title>
+
+    <script>
+        var word = ""
+        $.ajax({
+            method: 'GET',
+            url: './dic.json',
+            success: function (response) {
+                var myArray = []
+                myArray = response.data
+                word = response
+            }
+        })
+
+        setTimeout(() => {
+            seperate()
+            test()
+        }, 200);
+
+        function getJsonLength(json) {
+            var jsonLength = 0;
+            for (var i in json) {
+                jsonLength++;
+            }
+            return jsonLength;
+        }
+
+        var chinese = []
+        var english = []
+        function seperate() {
+            for (var i = 0; i < getJsonLength(word); i++) {
+                chinese.push(word[i]["中文"])
+                english.push(word[i]["英文"])
+            }
+            console.log(chinese)
+            console.log(english)
+
+        }
+
+        function rand(n) {
+            return Math.floor(Math.random() * n);
+        }
+
+        function selectQA() {
+            rd = rand(getJsonLength(word))
+            return rd
+
+        }
+
+        function Q(s) {
+            return s.split("=")[1];
+        }
+
+        function A(s) {
+            return s.split("=")[0];
+        }
+
+
+        var question = null, answers = [], choice = null, q = null, msg = null;
+        var Controltime = null;
+        var correct = 0, wrong = 0, isChecked = false, wrongcheck = 0;
+
+        function load() {
+            question = document.getElementById("question");
+            question.innerHTML = "";
+            answers = [];
+            answers[1] = document.getElementById("answer1");
+            answers[2] = document.getElementById("answer2");
+            answers[3] = document.getElementById("answer3");
+            answers[4] = document.getElementById("answer4");
+            choice = document.getElementById("choice");
+            msg = document.getElementById("msg");
+            msg1 = document.getElementById("msg1");
+            // msg2 = document.getElementById("msg2");
+            countRight = document.getElementById("countRight");
+            countWrong = document.getElementById("countWrong");
+
+            Controltime = document.getElementById("time");
+            Controltime.addEventListener('ended', function () { this.currentTime = 0; }, false);
+            btn = document.getElementById("btn");
+            $("#wrong").css("visibility", "visible");
+            document.onkeydown = function (e) {
+                var keyNum = window.event ? e.keyCode : e.which;
+                if (keyNum == 13) {
+                    $("#btn").click();
+                } else if (keyNum == 49) {
+                    $("#answer1").click();
+                } else if (keyNum == 50) {
+                    $("#answer2").click();
+                } else if (keyNum == 51) {
+                    $("#answer3").click();
+                } else if (keyNum == 52) {
+                    $("#answer4").click();
+                }
+            }
+        }
+
+        function chooseA(obj) {
+            yourAnswer = obj.innerHTML.slice(3)
+            choice.innerHTML = yourAnswer;
+        }
+
+        function test() {
+            isChecked = false;
+            choice.innerHTML = "?";
+            msg.innerHTML = "";
+            msg1.innerHTML = "";
+            q = selectQA();
+            console.log(110)
+            question.innerHTML = chinese[q];
+            answer = english[q];
+            btn.innerHTML = "送出答案";
+            wrongcheck = 0;
+
+            var set = {};
+            set[q] = "";
+            for (i = 1; i <= 4;) {
+                a = selectQA();
+                answers[i].innerHTML = i + ". " + english[a];
+                if (set[a] == "") continue; else i++;
+                set[a] = "";
+            }
+            let an = 1 + rand(4)
+            answers[an].innerHTML = an + ". " + answer;
+        }
+
+        function check() {
+            if (isChecked) return (choice.innerHTML == english[q]);
+            isChecked = true;
+            if (choice.innerHTML == english[q]) {
+                correct++;
+            } else {
+                msg1.innerHTML = "答錯了！請作筆記";
+                msg.innerHTML = chinese[q] + "：" + english[q];
+                wrong++;
+            }
+            countRight.innerHTML = correct
+            countWrong.innerHTML = wrong
+
+            return (choice.innerHTML == english[q]);
+        }
+
+        function click() {
+            if (wrongcheck == 2) {
+                passDelay = 0;
+                setTimeout(function () {
+                    test();
+                }, passDelay);
+            }
+        }
+
+        function pass() {
+            if (check()) {
+                passDelay = 0;
+                setTimeout(function () {
+                    test();
+                }, passDelay);
+            } else {
+                btn.innerHTML = "下一題";
+                wrongcheck++;
+                click();
+
+            }
+        }
+
+    </script>
+</head>
+
+
+<body onload="load()" class="d-flex h-100 text-center">
+    <div class="cover-container d-flex w-75 h-100 p-3 mx-auto flex-column">
+        <header class="mb-auto">
+            <div>
+                <h1 class="float-md-start mb-0">背單字系統</h1>
+                <nav class="nav nav-masthead justify-content-center float-md-end">
+                    <a class="nav-link active" aria-current="page" href="#">背單字</a>
+                    <a class="nav-link" href="https://dictionary.cambridge.org/zht/">查字典</a>
+                    <a class="nav-link" href="http://139.162.36.172:8000/database.html">新增單字</a>
+                </nav>
+            </div>
+
+        </header>
+        <main class="mid">
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-secondary" style="width: 18rem;">
+                            <div class="card-header">
+                                <h3 class="card-title" id="question"></h3>
+                                <label id="time"></label>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <a class="list-group-item lg" id="answer1" onclick="chooseA(this)"></a>
+                                    <a class="list-group-item lg" id="answer2" onclick="chooseA(this)"></a>
+                                    <a class="list-group-item lg" id="answer3" onclick="chooseA(this)"></a>
+                                    <a class="list-group-item lg" id="answer4" onclick="chooseA(this)"></a>
+                                    <div class="d-flex flex-row-reverse bd-highlight mb-3">
+                                        <button type="button" id="btn" class="btn btn-outline-primary p-2 bd-highlight"
+                                            onclick="pass()">送出答案
+                                        </button>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card text-dark bg-light" style="width: 18rem;">
+                            <div>
+                                <ul class="list-unstyled">
+                                    <li>你選的答案是：<label id="choice"></label></li>
+                                    <li>答對題數：<label id="countRight"></label></li>
+                                    <li>答錯題數：<label id="countWrong"></label></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card text-dark bg-light" style="width: 18rem;">
+                            <div id="wrong">
+                                <ul class="list-unstyled">
+                                    <li id="msg1"></li>
+                                    <li id="msg"></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
